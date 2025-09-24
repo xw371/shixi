@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Your Resume</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+    <!-- 配置Tailwind自定义颜色和字体 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#69B1FF',
+                        light: '#F5F7FA',
+                        dark: '#1D2129'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .upload-area-active {
+                @apply border-primary bg-primary/5;
+            }
+            .step-active {
+                @apply bg-primary text-white;
+            }
+            .step-completed {
+                @apply bg-primary/10 text-primary border-primary/30;
+            }
+        }
+    </style>
+</head>
+<body class="font-inter bg-gray-50 min-h-screen flex items-center justify-center p-4">
+    <div class="container mx-auto max-w-6xl">
+        <div class="flex flex-col lg:flex-row gap-8 items-center lg:items-start">
+            <!-- 左侧信息区域 -->
+            <div class="w-full lg:w-1/2 space-y-6">
+                <div>
+                    <h3 class="text-[clamp(1.5rem,3vw,2rem)] font-bold text-dark mb-2">Finish!</h3>
+                    <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold text-dark mb-4">Upload Your Resume</h2>
+                    <p class="text-gray-500 max-w-md">
+                        Upload your resume, the platform will help you parse and optimize, you can also skip this step
+                    </p>
+                </div>
+
+                <!-- 左侧插图 -->
+                <div class="relative w-full h-[300px] lg:h-[400px]">
+                    <img src="https://p3-flow-imagex-download-sign.byteimg.com/tos-cn-i-a9rns2rl98/5f3fd32c47ec45cf96a82ee9fcc8e136.png~tplv-a9rns2rl98-24:720:720.png?rcl=202509242059409132C3337530ED218A48&rk3s=8e244e95&rrcfp=8a172a1a&x-expires=1759323581&x-signature=N9Ung19oz8vEmaXCS6%2BfaFFp%2Bp0%3D"
+                         alt="Illustration of a blue cat with speech bubbles and a smartphone"
+                         class="w-full h-full object-contain">
+                </div>v
+            </div>
+
+            <!-- 右侧上传区域 -->
+            <div class="w-full lg:w-1/2">
+                <div class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md mx-auto transform transition-all duration-300 hover:shadow-2xl">
+                    <h3 class="text-xl font-bold text-dark mb-6">Upload file</h3>
+
+                    <!-- 上传区域 -->
+                    <div id="uploadArea" class="border-2 border-dashed border-gray-300 rounded-xl p-10 text-center transition-all duration-300 mb-8 cursor-pointer hover:border-primary hover:bg-primary/5">
+                        <div class="flex flex-col items-center">
+                            <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                                <i class="fa fa-cloud-upload text-primary text-xl"></i>
+                            </div>
+                            <p class="text-gray-500">
+                                Drag your resume file to this area, or click on the area to select<br>the appropriate file to upload
+                            </p>
+                            <input type="file" id="fileInput" class="hidden" accept=".pdf,.doc,.docx,.txt">
+                        </div>
+                    </div>
+
+                    <!-- 上传文件信息 (默认隐藏) -->
+                    <div id="fileInfo" class="hidden mb-8 p-4 bg-light rounded-lg">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 rounded bg-primary/10 flex items-center justify-center mr-3">
+                                <i class="fa fa-file-text-o text-primary"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p id="fileName" class="font-medium text-dark truncate"></p>
+                                <p id="fileSize" class="text-sm text-gray-500"></p>
+                            </div>
+                            <button id="removeFile" class="text-gray-400 hover:text-red-500 transition-colors">
+                                <i class="fa fa-times"></i>
+                            </button>
+                        </div>
+                        <!-- 进度条 (默认隐藏) -->
+                        <div id="progressContainer" class="hidden mt-3">
+                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                <div id="progressBar" class="bg-primary h-2.5 rounded-full" style="width: 0%"></div>
+                            </div>
+                            <p id="progressText" class="text-xs text-gray-500 mt-1 text-right"></p>
+                        </div>
+                    </div>
+
+                    <!-- 按钮区域 -->
+                    <div class="flex flex-col sm:flex-row gap-3 mb-8">
+                        <button id="lastStepBtn" class="flex-1 bg-secondary hover:bg-secondary/90 text-white font-medium py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98]">
+                            Last step
+                        </button>
+                        <button id="finishBtn" class="flex-1 bg-primary hover:bg-primary/90 text-white font-medium py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98]">
+                            Finish
+                        </button>
+                    </div>
+
+                    <!-- 步骤指示器 -->
+                    <div class="flex items-center justify-center">
+                        <div class="flex items-center w-full max-w-xs">
+                            <!-- 步骤1 -->
+                            <div class="w-8 h-8 rounded-full border-2 step-completed flex items-center justify-center">
+                                <i class="fa fa-check text-sm"></i>
+                            </div>
+                            <!-- 连接线1 -->
+                            <div class="flex-1 h-1 bg-primary/30 mx-2"></div>
+                            <!-- 步骤2 -->
+                            <div class="w-8 h-8 rounded-full border-2 step-completed flex items-center justify-center">
+                                <i class="fa fa-check text-sm"></i>
+                            </div>
+                            <!-- 连接线2 -->
+                            <div class="flex-1 h-1 bg-primary mx-2"></div>
+                            <!-- 步骤3 -->
+                            <div class="w-8 h-8 rounded-full border-2 step-active flex items-center justify-center">
+                                3
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 获取DOM元素
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const fileInfo = document.getElementById('fileInfo');
+        const fileName = document.getElementById('fileName');
+        const fileSize = document.getElementById('fileSize');
+        const removeFile = document.getElementById('removeFile');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressText');
+        const lastStepBtn = document.getElementById('lastStepBtn');
+        const finishBtn = document.getElementById('finishBtn');
+
+        // 上传区域点击事件 - 触发文件选择
+        uploadArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        // 拖放事件处理
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('upload-area-active');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('upload-area-active');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('upload-area-active');
+
+            if (e.dataTransfer.files.length) {
+                handleFile(e.dataTransfer.files[0]);
+            }
+        });
+
+        // 文件选择事件
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length) {
+                handleFile(fileInput.files[0]);
+            }
+        });
+
+        // 处理选中的文件
+        function handleFile(file) {
+            // 显示文件信息
+            fileName.textContent = file.name;
+            fileSize.textContent = formatFileSize(file.size);
+            fileInfo.classList.remove('hidden');
+
+            // 模拟上传进度
+            simulateUploadProgress();
+        }
+
+        // 移除文件
+        removeFile.addEventListener('click', () => {
+            fileInfo.classList.add('hidden');
+            fileInput.value = '';
+            progressContainer.classList.add('hidden');
+            progressBar.style.width = '0%';
+        });
+
+        // 格式化文件大小
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+            else return (bytes / 1048576).toFixed(1) + ' MB';
+        }
+
+        // 模拟上传进度
+        function simulateUploadProgress() {
+            progressContainer.classList.remove('hidden');
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 10;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                }
+                progressBar.style.width = progress + '%';
+                progressText.textContent = Math.round(progress) + '%';
+            }, 300);
+        }
+
+        // 按钮点击事件
+        lastStepBtn.addEventListener('click', () => {
+            alert('Navigating to last step...');
+        });
+
+        finishBtn.addEventListener('click', () => {
+            if (fileInput.files.length) {
+                alert('Resume uploaded successfully!');
+            } else {
+                alert('Skipping resume upload and finishing process...');
+            }
+        });
+    </script>
+</body>
+</html>
